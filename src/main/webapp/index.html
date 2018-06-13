@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="cn">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>定损单</title>
+    <link href="css/style.css" rel="stylesheet">
+    <link href="lib/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <script src="lib/ie8-support/jquery-1.9.1.min.js"></script>
+    <script src="lib/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script src="lib/lodash/lodash.min.js"></script>
+    <script src="app/app.js"></script>
+    <!--[if lt IE 9]>
+   <script src="lib/ie8-support/html5shiv.min.js"></script>
+   <script src="lib/ie8-support/respond.js"></script>
+    <![endif]-->
+</head>
+<body>
+   <header class="navbar navbar-default navbar-fixed-top" style="width: auto;">
+       <div class="navbar-inner">
+           <div class="container-fluid">
+               <div class="navbar-header animated tada">
+                   <a class="navbar-brand" href="#top"><img src="img/dashboard-logo.png" width="185px" alt=""></a>
+               </div>
+               <!-- Collect the nav links, forms, and other content for toggling -->
+                <div class="collapse navbar-collapse" id="navbarhead">
+                    <ul class="nav navbar-nav navbar-left animated slideInDown" style="margin-left: 15px;">
+                        <li>
+                            <a class="brand-label">备注</a>
+                        </li>
+                        <li>
+                            <a class="brand-label">保持</a>
+                        </li>
+                        <li>
+                            <a class="brand-label" id="submit">提交</a>
+                        </li>
+                        <li>
+                            <a class="brand-label">申请转送</a>
+                        </li>
+                        <li>
+                            <a class="brand-label">申请注销</a>
+                        </li>
+                        <li>
+                            <a class="brand-label">预审核</a>
+                        </li>
+                        <li>
+                            <a class="brand-label">核心查询</a>
+                        </li>
+                    </ul>
+                    <ul class="nav navbar-nav navbar-right animated tada" style="margin-left: -25px;margin-right: -20px;" >
+                        <li>
+                            <a ng-click="showValidateDialog()"><span class="glyphicon glyphicon-print home-icon" aria-hidden="true"></span></a>
+                        </li>
+                    </ul>
+                </div>
+                <!-- /.navbar-collapse -->
+            </div>
+            <!-- /.container-fluid -->
+        </div>
+    </header>
+
+    <div class="header-placeholder"></div>
+
+
+    <div class="container-fluid">
+
+
+        <!-- Nav tabs -->
+        <ul class="nav nav-tabs poc-tabs" role="tablist" id="myTabs">
+            <li role="presentation"><a href="#home" aria-controls="home" role="tab" data-toggle="tab">损失信息</a></li>
+            <li role="presentation"><a href="#profile" aria-controls="profile" role="tab" data-toggle="tab">关系人</a></li>
+            <li role="presentation"><a href="#messages" aria-controls="messages" role="tab" data-toggle="tab">车辆信息</a></li>
+            <li role="presentation"><a href="#settings" aria-controls="settings" role="tab" data-toggle="tab">修理厂信息</a></li>
+            <li role="presentation"><a href="#lossItem" aria-controls="lossItem" role="tab" data-toggle="tab">损失项目</a></li>
+            <li role="presentation"><a href="#other1" aria-controls="other1" role="tab" data-toggle="tab">附件</a></li>
+            <li role="presentation"><a href="#other2" aria-controls="other2" role="tab" data-toggle="tab">工作日志</a></li>
+            <li role="presentation"><a href="#other3" aria-controls="other3" role="tab" data-toggle="tab">参考信息</a></li>
+            <li role="presentation"><a href="#other4" aria-controls="other43" role="tab" data-toggle="tab">审核报告</a></li>
+
+        </ul>
+
+        <!-- Tab panes -->
+        <div class="tab-content">
+            <div role="tabpanel" class="tab-pane" id="lossItem">
+
+                <table id="lossItemTable" class="table table-bordered table-hover table-striped poc-table">
+                    <thead>
+                        <tr>
+                            <th>状态</th>
+                            <th>审核分值</th>
+                            <th>序号</th>
+                            <th>操作类型</th>
+                            <th>损失项目</th>
+                            <th>配件编号</th>
+                            <th>价格方案</th>
+                            <th>工种</th>
+                            <th>折后单价</th>
+                            <th>用量</th>
+                            <th>折后材料费</th>
+                            <th>专修单价</th>
+                            <th>维修工时</th>
+                            <th>维修费</th>
+                            <th>拆装工时</th>
+                            <th>拆装费</th>
+                            <th>喷漆工时</th>
+                            <th>喷漆费</th>
+                            <th>直供</th>
+                            <th>损余</th>
+                            <th>回收类型</th>
+                            <th>回收人员</th>
+                            <th>取消回收</th>
+                            <th>残值</th>
+                            <th>回勘</th>
+                            <th>操作</th>
+
+                            <!--<th>操作</th>
+                            <th>损失项目</th>
+                            <th>配件编号</th>
+                            <th>配件渠道</th>
+                            <th>单价</th>
+                            <th>报价</th>
+                            <th>用量</th>
+                            <th>材料费</th>
+                            <th>折后材料费</th>
+                            <th>工种</th>
+                            <th>拆装工时</th>
+                            <th>折后拆装费</th>
+                            <th>维修工时</th>
+                            <th>折后维修费</th>
+                            <th>喷漆工时</th>
+                            <th>折后喷漆费</th>
+                            <th>回收</th>
+                            <th>残值</th>
+                            <th>折旧</th>
+                            <th>复勘</th>
+                            <th>附件</th>
+                            <th>备注</th>
+                            <th>序号</th>-->
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+
+            </div>
+        </div>
+
+    </div>
+</body>
+</html>

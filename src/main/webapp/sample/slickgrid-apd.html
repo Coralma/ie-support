@@ -1,0 +1,1325 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>SlickGrid example</title>
+    <link rel="stylesheet" href="../css/slick-grid/slick.grid.css" type="text/css"/>
+    <link rel="stylesheet" href="../css/slick-grid/slick-default-theme.css" type="text/css"/>
+    <link rel="stylesheet" href="../css/slick-grid/jquery-ui-1.11.3.custom.css" type="text/css"/>
+    <link rel="stylesheet" href="../css/slick-grid/examples.css" type="text/css"/>
+    <link rel="stylesheet" href="../css/select2.css" type="text/css"/>
+    <link rel="stylesheet" href="../lib/bootstrap/dist/css/bootstrap.min.css" type="text/css"/>
+    <style>
+        .select2-container {
+            top: -3px;
+            left: -6px;
+        }
+        .select2-container .select2-selection--single {
+            height: 26px;
+        }
+        .status-cell {
+            background: url(../img/itemPassIco.png) no-repeat;
+        }
+        .editable-cell {
+            border-bottom: 1px solid #000;
+        }
+        .select2-container--default .select2-selection--single {
+            border-radius: 0px !important;
+            border-bottom: 1px solid #aaa;
+            border-top: 1px solid #aaa;
+        }
+        .select2-container .select2-selection--single .select2-selection__rendered {
+            display: block;
+            padding-left: 5px !important;
+             padding-right: 0 !important;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+    </style>
+</head>
+<body>
+<div class="container-fluid">
+    <div id="myGrid" style="width:100%;height:580px;"></div>
+</div>
+
+<script src="../lib/slick-grid/lib/firebugx.js"></script>
+<script src="../lib/slick-grid/lib/jquery-1.11.2.min.js"></script>
+<script src="../lib/slick-grid/lib/jquery-ui-1.11.3.min.js"></script>
+<script src="../lib/slick-grid/lib/jquery.event.drag-2.3.0.js"></script>
+
+<script src="../lib/slick-grid/slick.core.js"></script>
+<script src="../lib/slick-grid/slick.formatters.js"></script>
+<script src="../lib/slick-grid/slick.editors.js"></script>
+<script src="../lib/slick-grid/slick.grid.js"></script>
+<script src="../lib/slick-grid/slick.dataview.js"></script>
+
+<script src="../lib/slick-grid/plugins/slick.cellrangedecorator.js"></script>
+<script src="../lib/slick-grid/plugins/slick.cellrangeselector.js"></script>
+<script src="../lib/slick-grid/plugins/slick.cellselectionmodel.js"></script>
+<script src="../lib/slick-grid/plugins/slick.rowselectionmodel.js"></script>
+<script src="../lib/bootstrap/dist/js/bootstrap.min.js"></script>
+<script src="../lib/slick-grid/select2.js"></script>
+
+<script>
+    var operator = {'01':'换件','02':'维修'};
+    var laborType = {'01':'钣金','02':'机电'};
+
+    function PopulateSelect(select, dataSource, addBlank) {
+        var index, len, newOption;
+        if (addBlank) { select.appendChild(new Option('', '')); }
+        $.each(dataSource, function (value, text) {
+            newOption = new Option(text, value);
+            select.appendChild(newOption);
+        });
+    };
+
+    function Select2Editor(args) {
+        var $input;
+        var defaultValue;
+        var scope = this;
+        var calendarOpen = false;
+
+        this.keyCaptureList = [ Slick.keyCode.UP, Slick.keyCode.DOWN, Slick.keyCode.ENTER ];
+
+        this.init = function () {
+            $input = $('<select></select>');
+            $input.width(args.container.clientWidth + 3);
+            PopulateSelect($input[0], args.column.dataSource, true);
+
+            $input.appendTo(args.container);
+            $input.focus().select();
+
+            $input.select2({
+                placeholder: '',
+                minimumResultsForSearch: -1
+            });
+        };
+
+        this.destroy = function () {
+            $input.select2('destroy');
+            $input.remove();
+        };
+
+        this.show = function () {
+        };
+
+        this.hide = function () {
+            $input.select2('results_hide');
+        };
+
+        this.position = function (position) {
+        };
+
+        this.focus = function () {
+            $input.select2('input_focus');
+        };
+
+        this.loadValue = function (item) {
+            defaultValue = item[args.column.field];
+            $input.val(defaultValue);
+            $input[0].defaultValue = defaultValue;
+            $input.trigger("change.select2");
+        };
+
+        this.serializeValue = function () {
+            return $input.val();
+        };
+
+        this.applyValue = function (item, state) {
+            item[args.column.field] = state;
+        };
+
+        this.isValueChanged = function () {
+            return (!($input.val() == "" && defaultValue == null)) && ($input.val() != defaultValue);
+        };
+
+        this.validate = function () {
+            return {
+                valid: true,
+                msg: null
+            };
+        };
+
+        this.init();
+    }
+
+    function Select2Formatter(row, cell, value, columnDef, dataContext) {
+        return columnDef.dataSource[value] || '-';
+    }
+</script>
+<script>
+    var grid;
+    var dataView = new Slick.Data.DataView();
+    $(function () {
+        var data = [];
+        for (var i = 0; i < 500; i++) {
+            data[i] = {
+                "addOrder": i,
+                "addOuterRepairFlag": "0",
+                "adjacentStandardPartIds": null,
+                "adjacentType": null,
+                "aliasNameSeq": null,
+                "alreadyResurveyFlag": null,
+                "areaUnitPrice4s": 1345,
+                "areaUnitPriceApply": 360,
+                "areaUnitPriceMarket": 828,
+                "assemblyPartFlag": null,
+                "assemblyPartId": null,
+                "attachmentIds": null,
+                "audatexItemFlag": "0",
+                "auditRuleCount": 1,
+                "auditScore": 100,
+                "cancelRecycleReason": null,
+                "categoryOrder": null,
+                "claimAttachments": [],
+                "claimItemRuleInfo": null,
+                "clientId": null,
+                "contactInfo": "",
+                "createDate": "2018-03-05 18:03:43",
+                "deductionFeeDiscount": null,
+                "deductionHours": null,
+                "deductionHoursDiscount": null,
+                "deleteNodeType": null,
+                "depreciation": null,
+                "easyAbradedFlag": null,
+                "editedFlag": null,
+                "estimateUnitPrice": null,
+                "evaluatePrice": null,
+                "evaluateResult": null,
+                "factoryName": "",
+                "feeCategory": "00001",
+                "fragilePaste": null,
+                "glassFlag": null,
+                "hadAttachment": null,
+                "hasHistoryRemark": null,
+                "hasRuleTrigger": true,
+                "ifExistSamePart": "1",
+                "innerLaborFee": 0,
+                "innerPaintFee": 0,
+                "innerRemoveFee": null,
+                "innerRepairFee": null,
+                "interfaceItemMappingVOs": [
+                    {
+                        "cancelRecycleReason": null,
+                        "claimItemUniqueId": "8a3eb504611a19e701611bebf5723eb0",
+                        "estLaborFeeRate": null,
+                        "estLaborHour": null,
+                        "estLossRate": 0,
+                        "estQuotePrice": 500,
+                        "estUnitPrice": 500,
+                        "estimateLossAmount": null,
+                        "fragilePaste": null,
+                        "interfaceClaimId": null,
+                        "interfaceItemUniqueId": null,
+                        "itemMappingId": 79924260,
+                        "laborFeeRate": null,
+                        "laborHour": null,
+                        "laborHourId": null,
+                        "laborType":  '01',
+                        "lossAmount": 500,
+                        "m6ItemUniqueId": 1036891067430,
+                        "materialQuantity": null,
+                        "name": "前保险杠皮",
+                        "operationTypeId": "01",
+                        "partQuantity": 1,
+                        "pcLossRate": 0,
+                        "pcQuotePrice": 500,
+                        "pcUnitPrice": 500,
+                        "recoveryType": null,
+                        "recycleFlag": "0",
+                        "reinspection": null,
+                        "remark": null,
+                        "resurveyConclusion": null,
+                        "salvage": 0,
+                        "salvageCompany": null,
+                        "staffCode": null,
+                        "staffName": null,
+                        "status": "2",
+                        "supplierFlag": null,
+                        "unitPrice": 500
+                    }
+                ],
+                //"itemId": 76128972,//必须有字段叫id。。。
+                "id": i,//必须有字段叫id。。。
+                "itemName": "前保险杠皮",
+                "itemRemark": null,
+                "itemUniqueId": "8a3eb504611a19e701611bebf5723eb0",
+                "l2PartCategoryId": null,
+                "laborFee": 0,
+                "laborFeeAfterDiscount": 0,
+                "laborFeeRate": null,
+                "laborHour": null,
+                "laborHourId": null,
+                "laborHourRate": null,
+                "laborLevel": null,
+                "laborRateAfterDiscount": null,
+                "laborType": '01',
+                "localUnitPrice": null,
+                "localUnitPrice4s": 1345,
+                "localUnitPriceApply": 360,
+                "localUnitPriceMarket": 828,
+                "lossDegree": null,
+                "lossRate": 0,
+                "m6ItemUniqueId": 1036891067430,
+                "manualAssemblyPartIdSeq": null,
+                "manualFlag": "0",
+                "manualPartIdSeq": null,
+                "manualStandardPartIdSeq": null,
+                "manualStandardPartNameSeq": null,
+                "materialCode": null,
+                "materialCodes": null,
+                "materialFee": null,
+                "materialFeeAfterDiscount": null,
+                "materialId": null,
+                "materialQuantity": null,
+                "materialUnit": null,
+                "maxPrice": null,
+                "maxQuantity": null,
+                "minLocalPrice4s": 0,
+                "minLocalPriceMarket": 0,
+                "minSysPrice4s": 0,
+                "minSysPriceMarket": 0,
+                "modifyStage": null,
+                "mutexLaborIds": null,
+                "newEquipment": null,
+                "notRecycleReason": null,
+                "operationType": "01",
+                "outRpAppPrice": null,
+                "outRpAppResult": null,
+                "outerLaborFee": 0,
+                "outerRemoveFee": null,
+                "outerRepairFee": null,
+                "outerRepairFlag": null,
+                "paintDiscountFlag": null,
+                "paintFeeAfterDiscount": null,
+                "paintFlag": "0",
+                "paintLaborFee": null,
+                "paintLaborHour": null,
+                "paintLaborRate": null,
+                "paintRateAfterDiscount": null,
+                "partCategoryId": null,
+                "partCategoryName": null,
+                "partFee": 500,
+                "partFeeAfterDiscount": 500,
+                "partId": "8a3eb504611a19e701611bebf5723eb0",
+                "partIds": null,
+                "partLocationId": "001",
+                "partNo": "K865114M510",
+                "partOrMaterialFee": 500,
+                "partPanelType": null,
+                "partQuantity": 1,
+                "partType": "005",
+                "priceDiffer": null,
+                "priceSource": "005",
+                "qualified": null,
+                "quoteHistoryFlag": "1",
+                "quoteItemFlag": null,
+                "quotePrice": 500,
+                "readAttachmentUsers": [],
+                "readRemarkUsers": [],
+                "realValidFlag": "0",
+                "recoveryType": null,
+                "recycleFlag": "0",
+                "recycleRemark": null,
+                "recycleStatus": null,
+                "redefineDeleteFlag": null,
+                "referencePrice": null,
+                "reinspectionCode": [],
+                "remarkId": null,
+                "removeLaborFee": null,
+                "removeLaborFeeDiscount": null,
+                "removeLaborHour": null,
+                "removeLaborRate": null,
+                "repairLaborFee": 200,
+                "repairLaborFeeDiscount": 200,
+                "repairLaborHour": 1,
+                "repairLaborRate": null,
+                "repairPartFlag": null,
+                "repairSitePrice": 0,
+                "responseTime": null,
+                "resurveyConclusion": null,
+                "resurveyFlag": "0",
+                "resurveyReduceAmount": null,
+                "resurveyRemark": null,
+                "salvage": 0,
+                "salvageCompany": null,
+                "specialQuoter": null,
+                "specialRepairCode": null,
+                "specialRepairName": null,
+                "staffCode": null,
+                "staffName": null,
+                "standardAssemblyPartId": null,
+                "standardPartFlag": "0",
+                "standardPartId": "CCC301069",
+                "standardPartIds": null,
+                "standardPartName": null,
+                "standardPartNo": null,
+                "status": null,
+                "submitFlag": "0",
+                "supplierFlag": null,
+                "sysLaborHour": null,
+                "sysPaintLaborHour": null,
+                "sysQuantity": null,
+                "sysRecycleFlag": null,
+                "sysRemoveLaborHour": null,
+                "sysRepairLaborHour": 1,
+                "sysUnitPrice": null,
+                "sysUnitPrice4s": 1345,
+                "sysUnitPriceApply": 0,
+                "sysUnitPriceMarket": 910,
+                "systemHomoPrice": 0,
+                "texture": null,
+                "toBeDetectFlag": null,
+                "unitPrice": 500,
+                "unitPriceDiscount": 500,
+                "validFlag": "1",
+                "wholePaintFlag": null,
+                "yangjiePrice": 0
+            };
+        }
+        //为DataView设置Data
+        dataView.setItems(data);
+        //列定义 https://github.com/6pac/SlickGrid/wiki/Column-Options 列定义
+        var columns = [
+            {id: "status", name: "状态", field: "status",width: 40,cssClass: "status-cell"},
+            {id: "auditScore", name: "审核分值", field: "auditScore",width: 55},
+            {id: "addOrder", name: "序号", field: "addOrder",width: 40, sortable:true,defaultSortAsc:true},
+            {id: "operationType", name: "操作类型", width: 70, field: "operationType", formatter: Select2Formatter,
+                editor: Select2Editor, dataSource: operator },
+            {id: "itemName", name: "损失项目", field: "itemName", editor: Slick.Editors.Text},
+            {id: "partNo", name: "配件编号", field: "partNo", editor: Slick.Editors.Text, width: 100},
+            {id: "priceSource", name: "价格方案", field: "priceSource", editor: Slick.Editors.Text,width: 60},
+            {id: "laborType", name: "工种", field: "laborType", formatter: Select2Formatter,
+                editor: Select2Editor, dataSource: laborType ,width: 70},
+            {id: "unitPriceDiscount", name: "折后单价", field: "unitPriceDiscount", editor: Slick.Editors.Float,width: 60},
+            {id: "partQuantity", name: "用量", field: "partQuantity", editor: Slick.Editors.Integer,width: 40},
+            {id: "partFeeAfterDiscount", name: "折后材料费", field: "partFeeAfterDiscount",width: 80},
+            {id: "repairSitePrice", name: "专修单价", field: "repairSitePrice", editor: Slick.Editors.Text,width: 55},
+            {id: "repairLaborHour", name: "维修工时", field: "repairLaborHour", editor: Slick.Editors.Text,width: 55},
+            {id: "repairLaborFeeDiscount", name: "维修费", field: "repairLaborFeeDiscount",width: 45},
+            {id: "removeLaborHour", name: "拆装工时", field: "removeLaborHour", editor: Slick.Editors.Text,width: 55},
+            {id: "removeLaborFeeDiscount", name: "拆装费", field: "removeLaborFeeDiscount",width: 45},
+            {id: "paintLaborHour", name: "喷漆工时", field: "paintLaborHour", editor: Slick.Editors.Text,width: 55},
+            {id: "paintFeeAfterDiscount", name: "喷漆费", field: "paintFeeAfterDiscount",width: 45},
+            {id: "supplierFlag", name: "直供", field: "supplierFlag", formatter: Slick.Formatters.Checkbox, editor: Slick.Editors.Checkbox,width: 30},
+            {id: "recycleFlag", name: "损余", field: "recycleFlag", formatter: Slick.Formatters.Checkbox, editor: Slick.Editors.Checkbox,width: 30},
+            {id: "recoveryType", name: "回收类型", field: "recoveryType", editor: Slick.Editors.Text,width: 55},
+            {id: "staffCode", name: "回收人员", field: "staffCode", editor: Slick.Editors.Text,width: 55},
+            {id: "salvage", name: "残值", field: "salvage",width: 30},
+            {id: "resurveyFlag", name: "回勘", field: "resurveyFlag", formatter: Slick.Formatters.Checkmark, editor: Slick.Editors.Checkbox,width: 30},
+            {id: "itemRemark", name: "操作", field: "itemRemark",width: 30}
+        ];
+        //grid配置 https://github.com/6pac/SlickGrid/wiki/Grid-Options 详细配置
+        var options = {
+            asyncEditorLoading: false,//单元格编辑器添加delay，使用键盘导航时会增加导航速度
+            //asyncEditorLoadDelay: 100,//单元格编辑器打开后delay，asyncEditorLoading为true是忽略
+            //asyncPostRenderDelay: 50,//
+            autoEdit: true,//单元格在选中后会自动进入编辑模式
+            autoHeight: false,//disable垂直滚动
+
+
+            //cellFlashingCssClass: 'flashing',//通过flashCell()方法设置闪烁样式
+            //cellHighlightCssClass: 'selected',//setHighlightedCells()方法设置选中样式
+            //dataItemColumnValueExtractor:null,
+            //defaultColumnWidth:80,//默认列宽
+            //defaultFormatter:'defaultFormatter',//默认格式
+            editable:true,//可编辑
+            //editCommandHandler:'queueAndExecuteCommand',//修改处理handler
+            //editorFactory:null,//用来为单元格创建editor的工厂对象，必须实现getEditor(column)
+            //editorLock:Slick.GlobalEditorLock,//控制并发修改
+            enableAddRow:true,//打开后，最后一行为空白行，可以添加数据，必须订阅onAddNewRow()来保存
+            //enableAsyncPostRender:true,//异步post渲染开关，column上的asyncPostRender会被调用
+            //enableCellRangeSelection:null,//打开范围选择
+            //enableCellNavigation:true,//大数据量时打开可以优化速度
+            //enableColumnReorder:true,
+            //enableRowReordering:null,
+            //enableTextSelectionOnCells:true,//可以选择单元格文本
+            explicitInitialization:true,//设置为true可以手动调用init()
+            //forceFitColumns:false,强制让列自适应容器，防止水平滚动条
+            //forceSyncScrolling:false,
+            //formatterFactory:null,为单元格创建格式，必须实现getFormatter(column)
+            //fullWidthRows:false,扩展表格到容器最大狂赌
+            //headerRowHeight:1,//列头和第一行之间的高度
+            //leaveSpaceForNewRows:false,
+            //multiColumnSort:false,多列排序
+            multiSelect:true,//多选单元格
+            //rowHeight:25,//行高
+            selectedCellCssClass:'selected',//选中行样式
+            //showHeaderRow:true,//显示列头和第一行之间的区域
+            syncColumnCellResize:false,//true列在鼠标拖动时就会重新调整大小，false的话拖动结束才会调整
+            //topPanelHeight:100
+        };
+        //初始化grid
+        /***
+         * container grid所在容器
+         * data数组或者DataView对象 数据模型 json，也可以时JS数组
+         * columns 列定义对象
+         * options grid配置
+         */
+            //使用data数组初始化
+            //grid = new Slick.Grid("#myGrid", data, columns, options);
+            //使用DataView初始化
+        grid = new Slick.Grid("#myGrid", dataView, columns, options);
+        grid.setSelectionModel(new Slick.CellSelectionModel());
+        grid.init();
+
+        dataView.onRowCountChanged.subscribe(function (e, args) {
+            console.log("onRowCountChanged:"+ args);
+            grid.updateRowCount();
+            grid.render();
+        });
+
+        dataView.onRowsChanged.subscribe(function (e, args) {
+            console.log("onRowsChanged:"+args);
+            grid.invalidateRows(args.rows);
+            grid.render();
+        });
+
+        grid.onCellChange.subscribe(function(e, args){
+            //event handling code.
+            console.log('onActiveCellChanged');
+            var index = args.row;
+            var item = grid.getDataItem(index);
+            item.partFeeAfterDiscount = item.unitPriceDiscount * item.partQuantity;
+            grid.updateRow(args.row);
+            //grid.render();
+        });
+
+        //使用DataView排序
+        // Subscribe to the grid's onSort event.
+        // It only gets fired for sortable columns, so make sure your column definition has `sortable = true`.
+        grid.onSort.subscribe(function (e, args) {
+            // args.multiColumnSort indicates whether or not this is a multi-column sort.
+            // If it is, args.sortCols will have an array of {sortCol:..., sortAsc:...} objects.
+            // If not, the sort column and direction will be in args.sortCol & args.sortAsc.
+            // We'll use a simple comparer function here.
+            var comparer = function (a, b) {
+                return (a[args.sortCol.field] > b[args.sortCol.field]) ? 1 : -1;
+            }
+            // Delegate the sorting to DataView.
+            // This will fire the change events and update the grid.
+            dataView.sort(comparer, args.sortAsc);
+        });
+    });
+    function getAllData(){
+        //返回数据数组，如果是使用DataView会返回DataView对象
+        var data = grid.getData();
+        console.log(data);
+    }
+    function getDataByIndex(index){
+        //返回数据数组，如果是使用DataView会返回DataView对象
+        var data = grid.getDataItem(0);
+        console.log(data);
+    }
+    function getDataLength(index){
+        //返回数据大小
+        console.log(grid.getDataLength());
+    }
+    function getSelectedRows(){
+        //获取选中的行号
+        console.log(grid.getSelectedRows());
+    }
+    function setSelectedRows(){
+        //设置选中行，传入行号数组
+        grid.setSelectedRows([1,2,3])
+    }
+    function getSelectionModel(){
+        //获取选择器
+        console.log(grid.getSelectionModel());
+        //自定义的选择器
+        var customCellSelectionModel = function(){
+            var self = this;
+            //通过setSelectionModel(yourModel)注册选择器时调用
+            this.init = function(grid) {
+                self._grid = grid;
+                self._grid.onClick.subscribe(self.handleGridClick);
+            };
+            //通过setSelectionModel(yourModel)设置其他选择器时调用，意味着本选择器销毁
+            this.destroy = function() {
+                self._grid.onClick.unsubscribe(self.handleGridClick);
+            };
+
+            this.handleGridClick = function(e, args) {
+                var cell = self._grid.getCellFromEvent(e);
+                if (!cell || !self._grid.canCellBeSelected(cell.row, cell.cell)) {
+                    return;
+                }
+                self.onSelectedRangesChanged.notify([new Slick.Range(cell.row, cell.cell, cell.row, cell.cell)]);
+            };
+        };
+        //grid.setSelectionModel(customCellSelectionModel);
+    }
+    /***
+     * 返回column的索引，可以用来获取column对象
+     * id column的id
+     */
+    function getCol(colName){
+        var colIndex = grid.getColumnIndex(colName);
+        var column = grid.getColumns()[colIndex];
+        console.log(column);
+    }
+    /***
+     * 获取所有column对象
+     */
+    function getAllCols(){
+        var cols = grid.getColumns();
+        console.log(cols);
+    }
+    /***
+     * 设置active的单元格编辑器，如果单元格不可编辑会有error
+     * editor 参考slick.editors.js
+     */
+    function setEditor(editor){
+        grid.setActiveCell(0,3);
+        grid.editActiveCell(editor);
+    }
+    /***
+     * 设置单元格闪烁，闪烁俩次
+     * row 行索引
+     * col 列索引
+     * speed 速度 单位毫秒 默认100
+     */
+    function flashCell(){
+        grid.flashCell(0,1,500);
+    }
+    /***
+     * 返回当前活动cell
+     * {row: activeRow, cell: activeCell}
+     */
+    function getActiveCell(){
+        console.log(grid.getActiveCell());
+    }
+    /***
+     * 返回当前活动cell的node对象，如果没有则返回null
+     * dom对象
+     */
+    function getActiveCellNode(){
+        console.log(grid.getActiveCellNode());
+    }
+    /***
+     * 获取活动cell的位置
+     * {
+          bottom:  [numPixels],
+          height:  [numPixels],
+          left:    [numPixels],
+          right:   [numPixels],
+          top:     [numPixels],
+          visible: [boolean],
+          width:   [numPixels]
+        }
+     */
+    function getActiveCellPosition(){
+        console.log(grid.getActiveCellPosition());
+    }
+    /***
+     * 获取cell样式，和setCellCssStyles对应
+     * key css的名称
+     */
+    function getCellCssStyles(key){
+        console.log(grid.getCellCssStyles(key));
+    }
+    /***
+     * 返回当前活动cell的editor
+     */
+    function getCellEditor(){
+        console.log(grid.getCellEditor());
+    }
+    /***
+     * 返回有事件e的row和cell 索引
+     * e 为标准的w3c获取jquery事件
+     */
+    function getCellFromEvent(e){
+        console.log(grid.getCellFromEvent(e));
+    }
+    /***
+     * 根据坐标返回cell，从grid左上第一行开始计算，不包括column
+     * x
+     * y
+     */
+    function getCellFromPoint(x,y){
+        console.log(grid.getCellFromPoint(x,y));
+    }
+    /***
+     * 根据行索引和列索引返回cell的node对象
+     * x 行索引
+     * y 列索引
+     */
+    function getCellNode(x,y){
+        console.log(grid.getCellNode(x,y));
+    }
+    /***
+     * 类似getActiveCellPosition，根据坐标获取
+     * x 行索引
+     * y 列索引
+     */
+    function getCellNodeBox(x,y){
+        console.log(grid.getCellNodeBox(x,y));
+    }
+    /***
+     * gotoCell，根据坐标获取
+     * row 行索引
+     * cell 列索引
+     * forceEdit 是否进入编辑状态
+     */
+    function gotoCell(row, cell, forceEdit){
+        grid.gotoCell(row, cell, forceEdit);
+    }
+    /*
+     * grid.navigateDown() 活动cell向下移动，会跳过设置为不可选中的cell
+     * grid.navigateLeft() 活动cell向左移动，会跳过设置为不可选中的cell
+     * grid.navigateNext() 活动cell移动至下一个可选中的cell，会跳过设置为不可选中的cell
+     * grid.navigatePrev() 活动cell移动至上一个可选中的cell，会跳过设置为不可选中的cell
+     * grid.navigateRight() 活动cell向右移动，会跳过设置为不可选中的cell
+     * grid.navigateUp() 活动cell向上移动，会跳过设置为不可选中的cell
+     * grid.navigatePageUp() 向上翻一页，非数据翻页，是视图的翻页
+     * grid.navigatePageDown() 向下翻一页，非数据翻页，是视图的翻页
+     * grid.navigateTop() 视图定位至最顶部
+     * grid.navigateBottom() 视图定位至最底部
+     * grid.navigateRowStart() 定位至首个字段
+     * grid.navigateRowEnd() 定位至最后个字段
+     * grid.removeCellCssStyles(key) 删除cell中名称为key的css
+     * grid.resetActiveCell() 重置活动cell
+     * grid.setActiveCell(row, cell) 将cell置为活动状态，不会进入编辑，editActiveCell()可以进入编辑
+     *
+     * grid.getGridPosition()获取grid的位置
+     * {
+     bottom:  [numPixels],
+     height:  [numPixels],
+     left:    [numPixels],
+     right:   [numPixels],
+     top:     [numPixels],
+     visible: [boolean],
+     width:   [numPixels]
+     * }
+     * grid.getRenderedRange(viewportTop, viewportLeft)，
+     *   不传参会返回渲染的行数{ top: [rowIndex], bottom: [rowIndex], leftPx: [numPixels], rightPx: [numPixels] }
+     *   viewportTop和viewportLeft为可选参数，返回指定范围内的渲染结果
+     * grid.getViewport(viewportTop, viewportLeft) 返回当前显示的行的位置，结果类似getRenderedRange
+     * grid.invalidate() 重绘grid，将所有rows置为无效，并调用rener()
+     * grid.invalidateAllRows() 将grid中的所有rows置为无效，之后调用render()会重会整个grid
+     * grid.invalidateRow() 将指定的row置为无效，之后调用render()，会重绘该行
+     * grid.invalidateRows(rows) 将指定的row no数组置为无效，之后调用render()，会重绘该行
+     * grid.render() 重绘grid
+     * grid.resizeCanvas() 根据DIV重新调整大小，调整grid大小，先调整div的大小，然后再调用resizeCanvas()
+     *
+     * */
+
+    /***
+     * 获取有grid-canvas样式的div元素，包含所有数据行
+     */
+    function getCanvasNode(){
+        console.log(grid.getCanvasNode());
+    }
+    /***
+     * 重绘grid，将所有rows置为无效，并调用render()
+     */
+    function invalidate(){
+        grid.invalidate();
+    }
+    /***
+     * 将grid中的所有rows置为无效，之后调用render()会重会整个grid
+     */
+    function invalidateAllRows(){
+        grid.invalidateAllRows();
+        grid.render();
+    }
+    /***
+     * 将指定的row置为无效，之后调用render()，会重绘该行
+     */
+    function invalidateRow(){
+        //将当前活动行置为无效，然后重绘，grid.getActiveCell().row如果没有活动cell，会返回null
+        grid.invalidateRow(grid.getActiveCell().row);
+        grid.render();
+    }
+    /***
+     * 将指定的row no置为无效，之后调用render()，会重绘该行
+     */
+    function invalidateRows(){
+        // Change the name property of the first row
+        var data = grid.getData();
+        //data数组方式
+        //data[0].unitPriceDiscount = "88888888";
+        //data[1].unitPriceDiscount = "99999999";
+        //dataView方式
+        dataView.getItem(0).unitPriceDiscount = "88888888";
+        dataView.getItem(1).unitPriceDiscount = "99999999";
+        // Call invalidateRows to invalidate the first two rows
+        grid.invalidateRows([0,1]);
+        // Call render to render them again
+        grid.render();
+    }
+    /***
+     * 更新指定cell，先修改data中的数据，然后才会更新ui
+     */
+    function updateCell(row,cell){
+        var data = grid.getData();
+        //data数组方式
+        //data[0].operationTypeId = "换件";
+        //data[0].itemName = "前保险杠皮111111";
+
+        //dataView方式
+        dataView.getItem(row).operationTypeId = "换件";
+        //这里data虽然更新了，但是UI不会有变化，因为只会update指定的cell
+        dataView.getItem(row).itemName = "前保险杠皮111111";
+        grid.updateCell(row,cell);
+    }
+    /***
+     * 更新指定row，先修改data中的数据，然后才会更新ui
+     */
+    function updateRow(row){
+        var data = grid.getData();
+        //data数组方式
+        //data[0].operationTypeId = "换件";
+        //data[0].itemName = "前保险杠皮111111";
+        dataView.getItem(row).operationTypeId = "换件";
+        dataView.getItem(row).itemName = "前保险杠皮111111";
+        grid.updateRow(row);
+    }
+    /***
+     * dataView获取行对象1
+     */
+    function dataViewGetItem1(rowIndex){
+        //根据wiki，应该使用的是data[index]
+        console.log(dataView.getItem(rowIndex));
+    }
+    /***
+     * dataView获取行对象2
+     */
+    function dataViewGetItem2(rowIndex){
+        console.log(dataView.getItems()[rowIndex]);
+    }
+    /***
+     * dataView新增
+     */
+    function dataViewAdd(){
+        //在最后添加
+        dataView.addItem({
+            "addOrder": dataView.getLength()+1,
+            "addOuterRepairFlag": "0",
+            "adjacentStandardPartIds": null,
+            "adjacentType": null,
+            "aliasNameSeq": null,
+            "alreadyResurveyFlag": null,
+            "areaUnitPrice4s": 1345,
+            "areaUnitPriceApply": 360,
+            "areaUnitPriceMarket": 828,
+            "assemblyPartFlag": null,
+            "assemblyPartId": null,
+            "attachmentIds": null,
+            "audatexItemFlag": "0",
+            "auditRuleCount": 1,
+            "auditScore": 2,
+            "cancelRecycleReason": null,
+            "categoryOrder": null,
+            "claimAttachments": [],
+            "claimItemRuleInfo": null,
+            "clientId": null,
+            "contactInfo": "",
+            "createDate": "2018-03-05 18:03:43",
+            "deductionFeeDiscount": null,
+            "deductionHours": null,
+            "deductionHoursDiscount": null,
+            "deleteNodeType": null,
+            "depreciation": null,
+            "easyAbradedFlag": null,
+            "editedFlag": null,
+            "estimateUnitPrice": null,
+            "evaluatePrice": null,
+            "evaluateResult": null,
+            "factoryName": "",
+            "feeCategory": "00001",
+            "fragilePaste": null,
+            "glassFlag": null,
+            "hadAttachment": null,
+            "hasHistoryRemark": null,
+            "hasRuleTrigger": true,
+            "ifExistSamePart": "1",
+            "innerLaborFee": 0,
+            "innerPaintFee": 0,
+            "innerRemoveFee": null,
+            "innerRepairFee": null,
+            "interfaceItemMappingVOs": [
+                {
+                    "cancelRecycleReason": null,
+                    "claimItemUniqueId": "8a3eb504611a19e701611bebf5723eb0",
+                    "estLaborFeeRate": null,
+                    "estLaborHour": null,
+                    "estLossRate": 0,
+                    "estQuotePrice": 500,
+                    "estUnitPrice": 500,
+                    "estimateLossAmount": null,
+                    "fragilePaste": null,
+                    "interfaceClaimId": null,
+                    "interfaceItemUniqueId": null,
+                    "itemMappingId": 79924260,
+                    "laborFeeRate": null,
+                    "laborHour": null,
+                    "laborHourId": null,
+                    "laborType": null,
+                    "lossAmount": 500,
+                    "m6ItemUniqueId": 1036891067430,
+                    "materialQuantity": null,
+                    "name": "前保险杠皮",
+                    "operationTypeId": "01",
+                    "partQuantity": 1,
+                    "pcLossRate": 0,
+                    "pcQuotePrice": 500,
+                    "pcUnitPrice": 500,
+                    "recoveryType": null,
+                    "recycleFlag": "0",
+                    "reinspection": null,
+                    "remark": null,
+                    "resurveyConclusion": null,
+                    "salvage": 0,
+                    "salvageCompany": null,
+                    "staffCode": null,
+                    "staffName": null,
+                    "status": "2",
+                    "supplierFlag": null,
+                    "unitPrice": 500
+                }
+            ],
+            //"itemId": 76128972,//必须有字段叫id。。。
+            "id": dataView.getLength()+1,//必须有字段叫id。。。
+            "itemName": "前保险杠皮",
+            "itemRemark": null,
+            "itemUniqueId": "8a3eb504611a19e701611bebf5723eb0",
+            "l2PartCategoryId": null,
+            "laborFee": 0,
+            "laborFeeAfterDiscount": 0,
+            "laborFeeRate": null,
+            "laborHour": null,
+            "laborHourId": null,
+            "laborHourRate": null,
+            "laborLevel": null,
+            "laborRateAfterDiscount": null,
+            "laborType": null,
+            "localUnitPrice": null,
+            "localUnitPrice4s": 1345,
+            "localUnitPriceApply": 360,
+            "localUnitPriceMarket": 828,
+            "lossDegree": null,
+            "lossRate": 0,
+            "m6ItemUniqueId": 1036891067430,
+            "manualAssemblyPartIdSeq": null,
+            "manualFlag": "0",
+            "manualPartIdSeq": null,
+            "manualStandardPartIdSeq": null,
+            "manualStandardPartNameSeq": null,
+            "materialCode": null,
+            "materialCodes": null,
+            "materialFee": null,
+            "materialFeeAfterDiscount": null,
+            "materialId": null,
+            "materialQuantity": null,
+            "materialUnit": null,
+            "maxPrice": null,
+            "maxQuantity": null,
+            "minLocalPrice4s": 0,
+            "minLocalPriceMarket": 0,
+            "minSysPrice4s": 0,
+            "minSysPriceMarket": 0,
+            "modifyStage": null,
+            "mutexLaborIds": null,
+            "newEquipment": null,
+            "notRecycleReason": null,
+            "operationType": "01",
+            "outRpAppPrice": null,
+            "outRpAppResult": null,
+            "outerLaborFee": 0,
+            "outerRemoveFee": null,
+            "outerRepairFee": null,
+            "outerRepairFlag": null,
+            "paintDiscountFlag": null,
+            "paintFeeAfterDiscount": null,
+            "paintFlag": "0",
+            "paintLaborFee": null,
+            "paintLaborHour": null,
+            "paintLaborRate": null,
+            "paintRateAfterDiscount": null,
+            "partCategoryId": null,
+            "partCategoryName": null,
+            "partFee": 500,
+            "partFeeAfterDiscount": 500,
+            "partId": "8a3eb504611a19e701611bebf5723eb0",
+            "partIds": null,
+            "partLocationId": "001",
+            "partNo": "K865114M510",
+            "partOrMaterialFee": 500,
+            "partPanelType": null,
+            "partQuantity": 1,
+            "partType": "005",
+            "priceDiffer": null,
+            "priceSource": "005",
+            "qualified": null,
+            "quoteHistoryFlag": "1",
+            "quoteItemFlag": null,
+            "quotePrice": 500,
+            "readAttachmentUsers": [],
+            "readRemarkUsers": [],
+            "realValidFlag": "0",
+            "recoveryType": null,
+            "recycleFlag": "0",
+            "recycleRemark": null,
+            "recycleStatus": null,
+            "redefineDeleteFlag": null,
+            "referencePrice": null,
+            "reinspectionCode": [],
+            "remarkId": null,
+            "removeLaborFee": null,
+            "removeLaborFeeDiscount": null,
+            "removeLaborHour": null,
+            "removeLaborRate": null,
+            "repairLaborFee": null,
+            "repairLaborFeeDiscount": null,
+            "repairLaborHour": null,
+            "repairLaborRate": null,
+            "repairPartFlag": null,
+            "repairSitePrice": 0,
+            "responseTime": null,
+            "resurveyConclusion": null,
+            "resurveyFlag": "0",
+            "resurveyReduceAmount": null,
+            "resurveyRemark": null,
+            "salvage": 0,
+            "salvageCompany": null,
+            "specialQuoter": null,
+            "specialRepairCode": null,
+            "specialRepairName": null,
+            "staffCode": null,
+            "staffName": null,
+            "standardAssemblyPartId": null,
+            "standardPartFlag": "0",
+            "standardPartId": "CCC301069",
+            "standardPartIds": null,
+            "standardPartName": null,
+            "standardPartNo": null,
+            "status": "3",
+            "submitFlag": "0",
+            "supplierFlag": null,
+            "sysLaborHour": null,
+            "sysPaintLaborHour": null,
+            "sysQuantity": null,
+            "sysRecycleFlag": null,
+            "sysRemoveLaborHour": null,
+            "sysRepairLaborHour": null,
+            "sysUnitPrice": null,
+            "sysUnitPrice4s": 1345,
+            "sysUnitPriceApply": 0,
+            "sysUnitPriceMarket": 910,
+            "systemHomoPrice": 0,
+            "texture": null,
+            "toBeDetectFlag": null,
+            "unitPrice": 500,
+            "unitPriceDiscount": 500,
+            "validFlag": "1",
+            "wholePaintFlag": null,
+            "yangjiePrice": 0
+        });
+        //在最前面添加
+        dataView.insertItem(0,{
+            "addOrder": dataView.getLength()+1,
+            "addOuterRepairFlag": "0",
+            "adjacentStandardPartIds": null,
+            "adjacentType": null,
+            "aliasNameSeq": null,
+            "alreadyResurveyFlag": null,
+            "areaUnitPrice4s": 1345,
+            "areaUnitPriceApply": 360,
+            "areaUnitPriceMarket": 828,
+            "assemblyPartFlag": null,
+            "assemblyPartId": null,
+            "attachmentIds": null,
+            "audatexItemFlag": "0",
+            "auditRuleCount": 1,
+            "auditScore": 2,
+            "cancelRecycleReason": null,
+            "categoryOrder": null,
+            "claimAttachments": [],
+            "claimItemRuleInfo": null,
+            "clientId": null,
+            "contactInfo": "",
+            "createDate": "2018-03-05 18:03:43",
+            "deductionFeeDiscount": null,
+            "deductionHours": null,
+            "deductionHoursDiscount": null,
+            "deleteNodeType": null,
+            "depreciation": null,
+            "easyAbradedFlag": null,
+            "editedFlag": null,
+            "estimateUnitPrice": null,
+            "evaluatePrice": null,
+            "evaluateResult": null,
+            "factoryName": "",
+            "feeCategory": "00001",
+            "fragilePaste": null,
+            "glassFlag": null,
+            "hadAttachment": null,
+            "hasHistoryRemark": null,
+            "hasRuleTrigger": true,
+            "ifExistSamePart": "1",
+            "innerLaborFee": 0,
+            "innerPaintFee": 0,
+            "innerRemoveFee": null,
+            "innerRepairFee": null,
+            "interfaceItemMappingVOs": [
+                {
+                    "cancelRecycleReason": null,
+                    "claimItemUniqueId": "8a3eb504611a19e701611bebf5723eb0",
+                    "estLaborFeeRate": null,
+                    "estLaborHour": null,
+                    "estLossRate": 0,
+                    "estQuotePrice": 500,
+                    "estUnitPrice": 500,
+                    "estimateLossAmount": null,
+                    "fragilePaste": null,
+                    "interfaceClaimId": null,
+                    "interfaceItemUniqueId": null,
+                    "itemMappingId": 79924260,
+                    "laborFeeRate": null,
+                    "laborHour": null,
+                    "laborHourId": null,
+                    "laborType": null,
+                    "lossAmount": 500,
+                    "m6ItemUniqueId": 1036891067430,
+                    "materialQuantity": null,
+                    "name": "前保险杠皮",
+                    "operationTypeId": "01",
+                    "partQuantity": 1,
+                    "pcLossRate": 0,
+                    "pcQuotePrice": 500,
+                    "pcUnitPrice": 500,
+                    "recoveryType": null,
+                    "recycleFlag": "0",
+                    "reinspection": null,
+                    "remark": null,
+                    "resurveyConclusion": null,
+                    "salvage": 0,
+                    "salvageCompany": null,
+                    "staffCode": null,
+                    "staffName": null,
+                    "status": "2",
+                    "supplierFlag": null,
+                    "unitPrice": 500
+                }
+            ],
+            //"itemId": 76128972,//必须有字段叫id。。。
+            "id": dataView.getLength()+1,//必须有字段叫id。。。
+            "itemName": "前保险杠皮",
+            "itemRemark": null,
+            "itemUniqueId": "8a3eb504611a19e701611bebf5723eb0",
+            "l2PartCategoryId": null,
+            "laborFee": 0,
+            "laborFeeAfterDiscount": 0,
+            "laborFeeRate": null,
+            "laborHour": null,
+            "laborHourId": null,
+            "laborHourRate": null,
+            "laborLevel": null,
+            "laborRateAfterDiscount": null,
+            "laborType": null,
+            "localUnitPrice": null,
+            "localUnitPrice4s": 1345,
+            "localUnitPriceApply": 360,
+            "localUnitPriceMarket": 828,
+            "lossDegree": null,
+            "lossRate": 0,
+            "m6ItemUniqueId": 1036891067430,
+            "manualAssemblyPartIdSeq": null,
+            "manualFlag": "0",
+            "manualPartIdSeq": null,
+            "manualStandardPartIdSeq": null,
+            "manualStandardPartNameSeq": null,
+            "materialCode": null,
+            "materialCodes": null,
+            "materialFee": null,
+            "materialFeeAfterDiscount": null,
+            "materialId": null,
+            "materialQuantity": null,
+            "materialUnit": null,
+            "maxPrice": null,
+            "maxQuantity": null,
+            "minLocalPrice4s": 0,
+            "minLocalPriceMarket": 0,
+            "minSysPrice4s": 0,
+            "minSysPriceMarket": 0,
+            "modifyStage": null,
+            "mutexLaborIds": null,
+            "newEquipment": null,
+            "notRecycleReason": null,
+            "operationType": "01",
+            "outRpAppPrice": null,
+            "outRpAppResult": null,
+            "outerLaborFee": 0,
+            "outerRemoveFee": null,
+            "outerRepairFee": null,
+            "outerRepairFlag": null,
+            "paintDiscountFlag": null,
+            "paintFeeAfterDiscount": null,
+            "paintFlag": "0",
+            "paintLaborFee": null,
+            "paintLaborHour": null,
+            "paintLaborRate": null,
+            "paintRateAfterDiscount": null,
+            "partCategoryId": null,
+            "partCategoryName": null,
+            "partFee": 500,
+            "partFeeAfterDiscount": 500,
+            "partId": "8a3eb504611a19e701611bebf5723eb0",
+            "partIds": null,
+            "partLocationId": "001",
+            "partNo": "K865114M510",
+            "partOrMaterialFee": 500,
+            "partPanelType": null,
+            "partQuantity": 1,
+            "partType": "005",
+            "priceDiffer": null,
+            "priceSource": "005",
+            "qualified": null,
+            "quoteHistoryFlag": "1",
+            "quoteItemFlag": null,
+            "quotePrice": 500,
+            "readAttachmentUsers": [],
+            "readRemarkUsers": [],
+            "realValidFlag": "0",
+            "recoveryType": null,
+            "recycleFlag": "0",
+            "recycleRemark": null,
+            "recycleStatus": null,
+            "redefineDeleteFlag": null,
+            "referencePrice": null,
+            "reinspectionCode": [],
+            "remarkId": null,
+            "removeLaborFee": null,
+            "removeLaborFeeDiscount": null,
+            "removeLaborHour": null,
+            "removeLaborRate": null,
+            "repairLaborFee": null,
+            "repairLaborFeeDiscount": null,
+            "repairLaborHour": null,
+            "repairLaborRate": null,
+            "repairPartFlag": null,
+            "repairSitePrice": 0,
+            "responseTime": null,
+            "resurveyConclusion": null,
+            "resurveyFlag": "0",
+            "resurveyReduceAmount": null,
+            "resurveyRemark": null,
+            "salvage": 0,
+            "salvageCompany": null,
+            "specialQuoter": null,
+            "specialRepairCode": null,
+            "specialRepairName": null,
+            "staffCode": null,
+            "staffName": null,
+            "standardAssemblyPartId": null,
+            "standardPartFlag": "0",
+            "standardPartId": "CCC301069",
+            "standardPartIds": null,
+            "standardPartName": null,
+            "standardPartNo": null,
+            "status": "3",
+            "submitFlag": "0",
+            "supplierFlag": null,
+            "sysLaborHour": null,
+            "sysPaintLaborHour": null,
+            "sysQuantity": null,
+            "sysRecycleFlag": null,
+            "sysRemoveLaborHour": null,
+            "sysRepairLaborHour": null,
+            "sysUnitPrice": null,
+            "sysUnitPrice4s": 1345,
+            "sysUnitPriceApply": 0,
+            "sysUnitPriceMarket": 910,
+            "systemHomoPrice": 0,
+            "texture": null,
+            "toBeDetectFlag": null,
+            "unitPrice": 500,
+            "unitPriceDiscount": 500,
+            "validFlag": "1",
+            "wholePaintFlag": null,
+            "yangjiePrice": 0
+        });
+    }
+
+    /***
+     * dataView删除
+     */
+    function dataViewDelete(id){
+        dataView.deleteItem(id);
+    }
+
+    /***
+     * dataView修改
+     */
+    function dataViewUpdate(id){
+        var item = dataView.getItemById(id);
+        item['itemName'] = "updatedName";
+        dataView.updateItem(id, item);
+    }
+
+    /***
+     * dataView batch update
+     */
+    function dataViewBatchUpdate(){
+
+    }
+    /*
+     * DataView方法，data数组只提供了基本的grid操作，DataView早data[]的基础上提供了很多更加强大的功能和回调函数，所以推荐使用DataView
+     * getItems() - 原始data数组
+     * getItem(row) - 根据row索引获取item
+     * getItemMetadata(idx) - 返回item的源数据
+     * getLength() - 返回grid数据大小
+     * grid.getItemById(id) - 根据id获取对应的item，DataView要求data一定要有id属性并且唯一
+     * getIdxById(id) - With an item's id, return the index of the item in the original data array.根据id获取item在data数组中的索引
+     * getRowById(id) - 根据id获取row
+     * getItemByIdx(idx) - 根据索引获取item. 等价于getItems()[index].
+     * mapIdsToRows(idArray) - 将id数组map到grid的row数组
+     * mapRowsToIds(rowArray) - 将grid的row数组map到id数组
+     *
+     * 异步选择和cell样式
+     * syncGridSelection(grid, preserveHidden) 在有过滤器的情况下，如果刚好选中的row被隐藏了，将preserveHidden设置为true会将隐藏的row也选中，css样式同理
+     * https://github.com/6pac/SlickGrid/wiki/DataView#advanced-topics
+     *
+     * API https://github.com/6pac/SlickGrid/wiki/API-Reference
+     * Grid API https://github.com/6pac/SlickGrid/wiki/Slick.Grid
+     * Grid事件 https://github.com/6pac/SlickGrid/wiki/Grid-Events
+     * 列定义 https://github.com/6pac/SlickGrid/wiki/Column-Options
+     * grid配置 https://github.com/6pac/SlickGrid/wiki/Grid-Options
+     * DataView https://github.com/6pac/SlickGrid/wiki/DataView#advanced-topics
+     * DataView事件 https://github.com/6pac/SlickGrid/wiki/Dataview-Events
+     *
+     * */
+
+    /*
+     * 其他功能
+     * tree grid
+     * group grid
+     * filter
+     * grid延迟加载
+     * cell可以自定义formatter
+     * cell可以自定义editor https://github.com/6pac/SlickGrid/wiki/Writing-custom-cell-editors、
+     * 选择处理 https://github.com/6pac/SlickGrid/wiki/Handling-selection
+     * 数据填充 https://github.com/6pac/SlickGrid/wiki/Providing-data-to-the-grid
+     * undo操作
+     * cell可以自定义style
+     * 范围选择
+     * 拖拽
+     * 自适应窗口大小
+     * 其他插件
+     * 事件pub/sub模式
+     * */
+
+    /*
+     * TODO
+     * DataView中新增/修改/删除数据的获取和封装
+     * 双击点击编辑，修改为单击点击编辑
+     * 适应CCC风格的样式
+     * row双击事件，有对应事件
+     * 右键菜单
+     * 表格上的悬浮窗口
+     * */
+</script>
+</body>
+</html>

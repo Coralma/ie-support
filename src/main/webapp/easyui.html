@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>Display large amount of data in DataGrid without pagination - jQuery EasyUI Demo</title>
+    <link rel="stylesheet" type="text/css" href="https://www.jeasyui.com/easyui/themes/default/easyui.css">
+    <link rel="stylesheet" type="text/css" href="https://www.jeasyui.com/easyui/themes/icon.css">
+    <script type="text/javascript" src="https://www.jeasyui.com/easyui/jquery.min.js"></script>
+    <script type="text/javascript" src="https://www.jeasyui.com/easyui/jquery.easyui.min.js"></script>
+</head>
+<body>
+    <h2>Display large amount of data in DataGrid without pagination</h2>
+    <div style="margin-bottom:10px">
+        <p>Enter record count and press load button.</p>
+    </div>
+
+    <div style="margin-bottom:10px">
+        <span>Record Count:</span>
+        <input id="total" class="easyui-numberbox" value="100" min="0" max="2000">
+        <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-reload" onclick="loaddata()">Load</a>
+    </div>
+    <table id="tt" style="width:1280px;height:550px"
+            url="500part.json" singleSelect="true"
+            title="Load Large Data" iconCls="icon-ok" autoRowHeight="false">
+        <thead>
+            <tr>
+                <!--<th field="inv" width="80">Inv No</th>
+                <th field="date" width="120">Date</th>
+                <th field="name" width="80">Name</th>
+                <th field="amount" width="80" align="right">Amount</th>
+                <th field="price" width="80" align="right">Price</th>
+                <th field="cost" width="100" align="right">Cost</th>
+                <th field="note" width="130">Note</th>-->
+
+                <th field="status">状态</th>
+                <th field="auditScore">审核分值</th>
+                <th field="addOrder">序号</th>
+                <th field="operationTypeId">操作类型</th>
+                <th field="itemName">损失项目</th>
+                <th field="partNo">配件编号</th>
+                <th field="priceSource">价格方案</th>
+                <th field="laborType">工种</th>
+                <th field="unitPriceDiscount">折后单价</th>
+                <th field="partQuantity">用量</th>
+                <th field="partFeeAfterDiscount">折后材料费</th>
+                <th field="repairSitePrice">专修单价</th>
+                <th field="repairLaborHour">维修工时</th>
+                <th field="repairLaborFeeDiscount">维修费</th>
+                <th field="removeLaborHour">拆装工时</th>
+                <th field="removeLaborFeeDiscount">拆装费</th>
+                <th field="paintLaborHour">喷漆工时</th>
+                <th field="paintFeeAfterDiscount">喷漆费</th>
+                <th field="supplierFlag">直供</th>
+                <th field="recycleFlag">损余</th>
+                <th field="recoveryType">回收类型</th>
+                <th field="staffCode">回收人员</th>
+                <th field="cancelRecycleReason">取消回收原因</th>
+                <th field="salvage">残值</th>
+                <th field="resurveyFlag">回勘</th>
+                <th field="itemRemark">操作</th>
+            </tr>
+        </thead>
+    </table>
+    <script type="text/javascript">
+        $(function(){
+            $('#tt').datagrid({
+                onLoadSuccess:function(data){
+                    $.messager.show({
+                        title:'Info',
+                        msg:'Load '+data.total+' records successfully'
+                    });
+                }
+            });
+        });
+        /*function loaddata(){
+            $('#tt').datagrid('load',{
+                total: $('#total').numberbox('getValue')
+            });
+        }*/
+    </script>
+</body>
+</html>
